@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: balaji
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tufu
+  namespace: balaji
+  labels:
+    environment: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      environment: web
+      version: v01
+  template:
+    metadata:
+      labels:
+        environment: web
+        version: v01
+    spec:
+      nodeSelector:
+        node: application
+      containers:
+      - name: tufu
+        image: devapp.azurecr.io/superappstest2-pip:3
+        ports:
+        - containerPort: 5135
+        resources:
+          limits:
+            cpu: 500m
+            memory: 300Mi
+          requests:
+            cpu: 200m
+            memory: 100Mi    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tufu-svs
+  namespace: balaji
+spec:
+  type: ClusterIP
+  selector:
+    environment: web
+  ports:
+    - protocol: TCP
+      targetPort: 5135
+      port: 80
